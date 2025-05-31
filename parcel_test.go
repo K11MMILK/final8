@@ -6,19 +6,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	// randSource источник псевдо случайных чисел.
-	// Для повышения уникальности в качестве seed
-	// используется текущее время в unix формате (в виде числа)
 	randSource = rand.NewSource(time.Now().UnixNano())
-	// randRange использует randSource для генерации случайных чисел
-	randRange = rand.New(randSource)
+	randRange  = rand.New(randSource)
 )
 
-// getTestParcel возвращает тестовую посылку
 func getTestParcel() Parcel {
 	return Parcel{
 		Client:    1000,
@@ -42,9 +38,11 @@ func TestAddGetDelete(t *testing.T) {
 
 	stored, err := store.Get(id)
 	require.NoError(t, err)
-	require.Equal(t, parcel.Client, stored.Client)
-	require.Equal(t, parcel.Status, stored.Status)
-	require.Equal(t, parcel.Address, stored.Address)
+
+	assert.Equal(t, id, stored.Number)
+	assert.Equal(t, parcel.Client, stored.Client)
+	assert.Equal(t, parcel.Status, stored.Status)
+	assert.Equal(t, parcel.Address, stored.Address)
 
 	err = store.Delete(id)
 	require.NoError(t, err)
@@ -70,7 +68,8 @@ func TestSetAddress(t *testing.T) {
 
 	stored, err := store.Get(id)
 	require.NoError(t, err)
-	require.Equal(t, newAddress, stored.Address)
+
+	assert.Equal(t, newAddress, stored.Address)
 
 	_ = store.Delete(id)
 }
@@ -92,7 +91,8 @@ func TestSetStatus(t *testing.T) {
 
 	stored, err := store.Get(id)
 	require.NoError(t, err)
-	require.Equal(t, newStatus, stored.Status)
+
+	assert.Equal(t, newStatus, stored.Status)
 
 	_ = store.Delete(id)
 }
@@ -123,14 +123,13 @@ func TestGetByClient(t *testing.T) {
 
 	storedParcels, err := store.GetByClient(client)
 	require.NoError(t, err)
-	require.Len(t, storedParcels, len(parcels))
+
+	assert.Len(t, storedParcels, len(parcels))
 
 	for _, p := range storedParcels {
 		original, ok := parcelMap[p.Number]
-		require.True(t, ok)
-		require.Equal(t, original.Client, p.Client)
-		require.Equal(t, original.Status, p.Status)
-		require.Equal(t, original.Address, p.Address)
+		assert.True(t, ok)
+		assert.Equal(t, original, p)
 	}
 
 	for _, p := range parcels {

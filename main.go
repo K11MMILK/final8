@@ -158,11 +158,4 @@ func main() {
 		return
 	}
 
-	err = service.PrintClientParcels(client)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 }
-
-//
