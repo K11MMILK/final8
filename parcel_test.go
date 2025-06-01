@@ -43,6 +43,7 @@ func TestAddGetDelete(t *testing.T) {
 	assert.Equal(t, parcel.Client, stored.Client)
 	assert.Equal(t, parcel.Status, stored.Status)
 	assert.Equal(t, parcel.Address, stored.Address)
+	assert.Equal(t, parcel.CreatedAt, stored.CreatedAt)
 
 	err = store.Delete(id)
 	require.NoError(t, err)
@@ -134,5 +135,6 @@ func TestGetByClient(t *testing.T) {
 
 	for _, p := range parcels {
 		_ = store.Delete(p.Number)
+		require.NoError(t, err)
 	}
 }

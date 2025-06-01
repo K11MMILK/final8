@@ -89,14 +89,18 @@ func (s ParcelStore) SetAddress(number int, address string) error {
 }
 
 func (s ParcelStore) Delete(number int) error {
-	var status string
-	err := s.db.QueryRow(`SELECT status FROM parcel WHERE number = ?`, number).Scan(&status)
+	res, err := s.db.Exec(`DELETE FROM parcel WHERE number = ? AND status = ?`, number, ParcelStatusRegistered)
 	if err != nil {
 		return err
 	}
-	if status != ParcelStatusRegistered {
-		return fmt.Errorf("посылку можно удалить только в статусе %q", ParcelStatusRegistered)
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return err
 	}
-	_, err = s.db.Exec(`DELETE FROM parcel WHERE number = ?`, number)
-	return err
+	if rowsAffected == 0 {
+		return fmt.Errorf("удаление доступно только в статусе %q или посылка не найдена", ParcelStatusRegistered)
+	}
+
+	return nil
 }
